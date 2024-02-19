@@ -7,7 +7,7 @@ export class PaginatePostDto {
 
   @IsIn(['ASC'])
   @IsOptional()
-  order__createdAt: string = 'ASC';
+  order__createdAt: 'ASC' = 'ASC';
 
   @IsNumber()
   @IsOptional()
