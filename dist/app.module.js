@@ -13,7 +13,7 @@ const app_service_1 = require("./app.service");
 const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
 const type_orm_config_1 = require("./config/type-orm.config");
-const post_entity_1 = require("./entity/post.entity");
+const posts_module_1 = require("./posts/posts.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -24,7 +24,7 @@ exports.AppModule = AppModule = __decorate([
                 isGlobal: true,
             }),
             typeorm_1.TypeOrmModule.forRootAsync(type_orm_config_1.typeOrmConfig),
-            post_entity_1.Post,
+            posts_module_1.PostsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

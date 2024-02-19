@@ -31,6 +31,10 @@ let PostsService = class PostsService {
         });
         return { data: posts };
     }
+    async get() {
+        const a = await this.postRepository.find();
+        return a;
+    }
 };
 exports.PostsService = PostsService;
 exports.PostsService = PostsService = __decorate([

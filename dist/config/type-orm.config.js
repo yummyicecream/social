@@ -13,6 +13,7 @@ exports.typeOrmConfig = {
         entities: [__dirname + '/../entity/*.entity{.ts,.js}'],
         timezone: 'Asia/Seoul',
         synchronize: true,
+        logging: true,
     }),
     inject: [config_1.ConfigService],
 };

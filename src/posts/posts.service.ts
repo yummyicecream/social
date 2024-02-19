@@ -19,4 +19,9 @@ export class PostsService {
     });
     return { data: posts };
   }
+
+  async get(): Promise<Post[]> {
+    const a = await this.postRepository.find();
+    return a;
+  }
 }

@@ -21,7 +21,11 @@ let PostsController = class PostsController {
         this.postsService = postsService;
     }
     async getPosts(query) {
+        console.log('query', query);
         return this.postsService.paginatePosts(query);
+    }
+    async get() {
+        return this.postsService.get();
     }
 };
 exports.PostsController = PostsController;
@@ -32,8 +36,14 @@ __decorate([
     __metadata("design:paramtypes", [paginate_post_dto_1.PaginatePostDto]),
     __metadata("design:returntype", Promise)
 ], PostsController.prototype, "getPosts", null);
+__decorate([
+    (0, common_1.Get)('/all'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], PostsController.prototype, "get", null);
 exports.PostsController = PostsController = __decorate([
-    (0, common_1.Controller)('posts'),
+    (0, common_1.Controller)('/posts'),
     __metadata("design:paramtypes", [posts_service_1.PostsService])
 ], PostsController);
 //# sourceMappingURL=posts.controller.js.map

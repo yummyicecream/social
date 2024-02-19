@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/type-orm.config';
-import { Post } from './entity/post.entity';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -12,7 +12,7 @@ import { Post } from './entity/post.entity';
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync(typeOrmConfig),
-    Post,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

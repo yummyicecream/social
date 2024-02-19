@@ -7,4 +7,5 @@ export declare class PostsService {
     paginatePosts(dto: PaginatePostDto): Promise<{
         data: Post[];
     }>;
+    get(): Promise<Post[]>;
 }
