@@ -33,4 +33,22 @@ export class AuthService {
   private generateRefreshToken(userId: number): string {
     return this.jwtService.sign({ sub: userId }, { expiresIn: '7d' });
   }
+
+  public extractTokenFromHeader(header: string, isBearer: boolean) {
+    const splitToken = header.split(' ');
+
+    const prefix = isBearer ? 'Bearer' : 'Basic';
+
+    if (splitToken.length !== 2 || splitToken[0] !== prefix) {
+      throw new UnauthorizedException('UNAUTHORIZED_TOKEN');
+    }
+
+    const token = splitToken[1];
+
+    return token;
+  }
+
+  public verifyToken(token: string) {
+    return this.jwtService.verifyAsync(token);
+  }
 }
