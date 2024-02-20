@@ -12,7 +12,7 @@ export class UserController {
   async createUser(
     @Body() dto: CreateUserDto,
   ): Promise<CommonResponseDto<void>> {
-    const user = await this.userService.createUser(dto);
-    return CommonResponseDto.success(ResponseMessage.CREATE_SUCCESS, user);
+    await this.userService.createUser(dto);
+    return CommonResponseDto.successNoContent(ResponseMessage.CREATE_SUCCESS);
   }
 }

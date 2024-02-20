@@ -31,8 +31,7 @@ export class PostsService {
     return new PostResponseDto(post);
   }
 
-  async get(): Promise<Post[]> {
-    const a = await this.postRepository.find();
-    return a;
+  async deletePost(post: Post) {
+    await this.postRepository.delete(post);
   }
 }

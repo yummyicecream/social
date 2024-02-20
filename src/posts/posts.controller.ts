@@ -1,7 +1,15 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  ParseIntPipe,
+  Query,
+  NotFoundException,
+  Delete,
+} from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { PaginatePostDto } from './dto/paginate-post.dto';
-import { Post } from '../entity/post.entity';
 import { CommonResponseDto } from '../common/dto/common-response.dto';
 import { ResponseMessage } from '../common/dto/response-message.enum';
 import { PostResponseDto } from './dto/post-response.dto';
@@ -23,8 +31,13 @@ export class PostsController {
     return CommonResponseDto.success(ResponseMessage.READ_SUCCESS, post);
   }
 
-  @Get('/all')
-  async get(): Promise<Post[]> {
-    return this.postsService.get();
-  }
+  // @Delete(':id')
+  // async deletePostById(@Param('id', ParseIntPipe) id: number) {
+  //   const post = await this.postsService.getPostById(id);
+  //   if (!post) {
+  //     throw new NotFoundException();
+  //   }
+  //   await this.postsService.deletePost(post);
+  //   return CommonResponseDto.successNoContent(ResponseMessage.DELETE_SUCCESS);
+  // }
 }
