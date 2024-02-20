@@ -3,7 +3,7 @@ import { IsIn, IsNumber, IsOptional } from 'class-validator';
 export class PaginatePostDto {
   @IsNumber()
   @IsOptional()
-  where__id_more_than?: number;
+  where__id_more_than?: number = 0;
 
   @IsIn(['ASC'])
   @IsOptional()
