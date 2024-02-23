@@ -32,12 +32,12 @@ export class TokenGuard implements CanActivate {
     }
 
     const rawToken = req.headers['authorization'];
+    console.log(rawToken);
 
     if (!rawToken) {
       throw new UnauthorizedException();
     }
-
-    const token = this.authService.extractTokenFromHeader(rawToken, true);
+    const token = this.authService.extractTokenFromHeader(rawToken);
 
     const result = await this.authService.verifyToken(token);
 
@@ -61,11 +61,9 @@ export class AccessTokenGuard extends TokenGuard {
     if (req.isRoutePublic) {
       return true;
     }
-
     if (req.tokenType !== 'access') {
       throw new UnauthorizedException('NOT_ACCESS_TOKEN');
     }
-
     return true;
   }
 }
@@ -80,11 +78,9 @@ export class RefreshTokenGuard extends TokenGuard {
     if (req.isRoutePublic) {
       return true;
     }
-
     if (req.tokenType !== 'refresh') {
       throw new UnauthorizedException('NOT_REFRESH_TOKEN');
     }
-
     return true;
   }
 }

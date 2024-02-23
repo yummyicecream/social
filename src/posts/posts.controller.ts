@@ -13,6 +13,8 @@ import { PaginatePostDto } from './dto/paginate-post.dto';
 import { CommonResponseDto } from '../common/dto/common-response.dto';
 import { ResponseMessage } from '../common/dto/response-message.enum';
 import { PostResponseDto } from './dto/post-response.dto';
+import { IsPublic } from '../common/decorator/is-public.decorator';
+import { AccessTokenGuard } from '../auth/guard/token-auth.guard';
 
 @Controller('/posts')
 export class PostsController {
@@ -20,6 +22,7 @@ export class PostsController {
 
   @Get()
   async getPosts(@Query() query: PaginatePostDto) {
+    console.log('aaaaaaaaaaaaaa');
     return this.postsService.paginatePosts(query);
   }
 
