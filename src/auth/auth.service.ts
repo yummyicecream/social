@@ -31,15 +31,12 @@ export class AuthService {
     const accessToken = this.generateAccessToken(signedInUser);
     const refreshToken = this.generateRefreshToken(signedInUser);
     await this.cacheManager.set(signedInUser.email, refreshToken);
-    console.log(signedInUser.email);
 
-    const get = await this.cacheManager.get(signedInUser.email);
-    //리프레쉬 레디스에 저장
-    console.log(get);
+    await this.cacheManager.get(signedInUser.email);
     return { accessToken, refreshToken };
   }
 
-  private generateAccessToken(user: User): string {
+  public generateAccessToken(user: User): string {
     return this.jwtService.sign(
       {
         sub: user.id,
@@ -52,7 +49,7 @@ export class AuthService {
       },
     );
   }
-  private generateRefreshToken(user: User): string {
+  public generateRefreshToken(user: User): string {
     return this.jwtService.sign(
       {
         sub: user.id,

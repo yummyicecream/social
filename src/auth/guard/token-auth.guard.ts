@@ -32,7 +32,6 @@ export class TokenGuard implements CanActivate {
     }
 
     const rawToken = req.headers['authorization'];
-    console.log(rawToken);
 
     if (!rawToken) {
       throw new UnauthorizedException();
@@ -46,6 +45,10 @@ export class TokenGuard implements CanActivate {
     req.user = user;
     req.token = token;
     req.tokenType = result.type;
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid user');
+    }
 
     return true;
   }
@@ -81,6 +84,7 @@ export class RefreshTokenGuard extends TokenGuard {
     if (req.tokenType !== 'refresh') {
       throw new UnauthorizedException('NOT_REFRESH_TOKEN');
     }
+
     return true;
   }
 }

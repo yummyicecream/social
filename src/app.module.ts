@@ -8,7 +8,10 @@ import { PostsModule } from './posts/posts.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
-import { AccessTokenGuard } from './auth/guard/token-auth.guard';
+import {
+  AccessTokenGuard,
+  RefreshTokenGuard,
+} from './auth/guard/token-auth.guard';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
 
@@ -31,6 +34,7 @@ import * as redisStore from 'cache-manager-ioredis';
   controllers: [AppController],
   providers: [
     AppService,
+
     {
       provide: APP_GUARD,
       useClass: AccessTokenGuard,
