@@ -15,6 +15,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { GetToken, GetUser } from '../common/decorator/get-user.decorator';
 import { User } from '../entity/user.entity';
 import { Cache } from 'cache-manager';
+import { IsPublicEnum } from '../common/decorator/is-public.const';
 
 @Controller('auth')
 export class AuthController {
@@ -24,7 +25,7 @@ export class AuthController {
   ) {}
 
   @Post('/login')
-  @IsPublic()
+  @IsPublic(IsPublicEnum.ISPUBLIC)
   async userLogin(@Body() dto: LoginDto) {
     const result = await this.authService.userLogin(dto);
     return result;
@@ -39,7 +40,7 @@ export class AuthController {
   //엑세스 리프뤠시 새로 만들고 레디스에 리프뤠시 업데이트하고
   //새로 만든 두개 쏴줌
   @Post('/reissue/access')
-  @IsPublic()
+  @IsPublic(IsPublicEnum.ISREFRESHTOKEN)
   @UseGuards(RefreshTokenGuard)
   async reissueAccessToken(@GetUser() user: User, @GetToken() token: string) {
     const { email } = user;

@@ -4,13 +4,14 @@ import { CommonResponseDto } from '../common/dto/common-response.dto';
 import { ResponseMessage } from '../common/dto/response-message.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { IsPublic } from '../common/decorator/is-public.decorator';
+import { IsPublicEnum } from '../common/decorator/is-public.const';
 
 @Controller('/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @IsPublic()
+  @IsPublic(IsPublicEnum.ISREFRESHTOKEN)
   async createUser(
     @Body() dto: CreateUserDto,
   ): Promise<CommonResponseDto<void>> {

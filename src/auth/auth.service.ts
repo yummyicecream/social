@@ -25,7 +25,7 @@ export class AuthService {
       signedInUser.password,
     );
     if (!checkIfMatches) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('ㅁㅁ');
     }
 
     const accessToken = this.generateAccessToken(signedInUser);
