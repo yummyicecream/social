@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './auth/guard/token-auth.guard';
 import { CacheModule } from '@nestjs/cache-manager';
+import { AwsModule } from './aws/aws.module';
 import * as redisStore from 'cache-manager-ioredis';
 
 @Module({
@@ -27,6 +28,7 @@ import * as redisStore from 'cache-manager-ioredis';
     PostsModule,
     UserModule,
     AuthModule,
+    AwsModule,
   ],
   controllers: [AppController],
   providers: [

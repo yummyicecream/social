@@ -6,11 +6,14 @@ import { PostResponseDto } from './dto/post-response.dto';
 import { User } from '../entity/user.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Post } from '../entity/post.entity';
+import { v4 as uuid } from 'uuid';
+import { AwsService } from '../aws/aws.service';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
+    private readonly awsService: AwsService,
   ) {}
 
   async createPost(user: User, dto: CreatePostDto): Promise<void> {
@@ -81,5 +84,17 @@ export class PostsService {
       throw new NotFoundException();
     }
     await this.postRepository.remove(post);
+  }
+
+  async saveImage(file: Express.Multer.File) {
+    const imageName = uuid();
+    const ext = file.originalname.split('.').pop();
+
+    const imageUrl = await this.awsService.imageUploadToS3(
+      `${imageName}.${ext}`,
+      file,
+      ext,
+    );
+    return { imageUrl };
   }
 }

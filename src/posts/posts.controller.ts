@@ -7,6 +7,8 @@ import {
   Query,
   Body,
   Delete,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { PaginatePostDto } from './dto/paginate-post.dto';
@@ -18,10 +20,18 @@ import { User } from '../entity/user.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { IsPublic } from '../common/decorator/is-public.decorator';
 import { IsPublicEnum } from '../common/decorator/is-public.const';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('/posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
+
+  @Post('image')
+  @IsPublic(IsPublicEnum.ISPUBLIC)
+  @UseInterceptors(FileInterceptor('file'))
+  async saveImage(@UploadedFile() file: Express.Multer.File) {
+    return await this.postsService.saveImage(file);
+  }
 
   @Post()
   async createPost(
