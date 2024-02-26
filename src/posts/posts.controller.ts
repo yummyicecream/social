@@ -23,10 +23,19 @@ export class PostsController {
   @Post()
   async createPost(
     @GetUser() user: User,
-    @Body() createPostDto: CreatePostDto,
+    @Body() dto: CreatePostDto,
   ): Promise<CommonResponseDto<void>> {
-    await this.postsService.createPost(user, createPostDto);
+    await this.postsService.createPost(user, dto);
     return CommonResponseDto.successNoContent(ResponseMessage.CREATE_SUCCESS);
+  }
+  @Post(':postId')
+  async modifyPost(
+    @GetUser() user: User,
+    @Param('postId', ParseIntPipe) postId: number,
+    @Body() dto: CreatePostDto,
+  ): Promise<CommonResponseDto<void>> {
+    await this.postsService.modifyPost(user, postId, dto);
+    return CommonResponseDto.successNoContent(ResponseMessage.UPDATE_SUCCESS);
   }
 
   @Get()
@@ -34,9 +43,9 @@ export class PostsController {
     return this.postsService.paginatePosts(query);
   }
 
-  @Get(':id')
+  @Get(':postId')
   async getPostById(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('postId', ParseIntPipe) id: number,
   ): Promise<CommonResponseDto<PostResponseDto>> {
     const post = await this.postsService.getPostById(id);
     return CommonResponseDto.success(ResponseMessage.READ_SUCCESS, post);
