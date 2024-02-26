@@ -16,6 +16,8 @@ import { PostResponseDto } from './dto/post-response.dto';
 import { GetUser } from '../common/decorator/get-user.decorator';
 import { User } from '../entity/user.entity';
 import { CreatePostDto } from './dto/create-post.dto';
+import { IsPublic } from '../common/decorator/is-public.decorator';
+import { IsPublicEnum } from '../common/decorator/is-public.const';
 
 @Controller('/posts')
 export class PostsController {
@@ -47,26 +49,19 @@ export class PostsController {
     await this.postsService.deletePost(user, postId);
     return CommonResponseDto.successNoContent(ResponseMessage.DELETE_SUCCESS);
   }
+
   @Get()
+  @IsPublic(IsPublicEnum.ISPUBLIC)
   async getPosts(@Query() query: PaginatePostDto) {
     return this.postsService.paginatePosts(query);
   }
 
   @Get(':postId')
+  @IsPublic(IsPublicEnum.ISPUBLIC)
   async getPostById(
     @Param('postId', ParseIntPipe) id: number,
   ): Promise<CommonResponseDto<PostResponseDto>> {
     const post = await this.postsService.getPostById(id);
     return CommonResponseDto.success(ResponseMessage.READ_SUCCESS, post);
   }
-
-  // @Delete(':id')
-  // async deletePostById(@Param('id', ParseIntPipe) id: number) {
-  //   const post = await this.postsService.getPostById(id);
-  //   if (!post) {
-  //     throw new NotFoundException();
-  //   }
-  //   await this.postsService.deletePost(post);
-  //   return CommonResponseDto.successNoContent(ResponseMessage.DELETE_SUCCESS);
-  // }
 }
