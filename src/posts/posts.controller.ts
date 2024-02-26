@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Query,
   Body,
+  Delete,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { PaginatePostDto } from './dto/paginate-post.dto';
@@ -38,6 +39,14 @@ export class PostsController {
     return CommonResponseDto.successNoContent(ResponseMessage.UPDATE_SUCCESS);
   }
 
+  @Delete(':postId')
+  async deletePost(
+    @GetUser() user: User,
+    @Param('postId', ParseIntPipe) postId: number,
+  ): Promise<CommonResponseDto<void>> {
+    await this.postsService.deletePost(user, postId);
+    return CommonResponseDto.successNoContent(ResponseMessage.DELETE_SUCCESS);
+  }
   @Get()
   async getPosts(@Query() query: PaginatePostDto) {
     return this.postsService.paginatePosts(query);

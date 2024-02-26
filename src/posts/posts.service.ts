@@ -70,7 +70,16 @@ export class PostsService {
     return new PostResponseDto(post);
   }
 
-  async deletePost(post: Post) {
-    await this.postRepository.delete(post);
+  async deletePost(user: User, postId: number): Promise<void> {
+    const post = await this.postRepository.findOne({
+      where: {
+        id: postId,
+        author: { id: user.id },
+      },
+    });
+    if (!post) {
+      throw new NotFoundException();
+    }
+    await this.postRepository.remove(post);
   }
 }
