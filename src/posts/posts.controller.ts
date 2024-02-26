@@ -5,20 +5,29 @@ import {
   Param,
   ParseIntPipe,
   Query,
-  NotFoundException,
-  Delete,
+  Body,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { PaginatePostDto } from './dto/paginate-post.dto';
 import { CommonResponseDto } from '../common/dto/common-response.dto';
 import { ResponseMessage } from '../common/dto/response-message.enum';
 import { PostResponseDto } from './dto/post-response.dto';
-import { IsPublic } from '../common/decorator/is-public.decorator';
-import { AccessTokenGuard } from '../auth/guard/token-auth.guard';
+import { GetUser } from '../common/decorator/get-user.decorator';
+import { User } from '../entity/user.entity';
+import { CreatePostDto } from './dto/create-post.dto';
 
 @Controller('/posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
+
+  @Post()
+  async createPost(
+    @GetUser() user: User,
+    @Body() createPostDto: CreatePostDto,
+  ): Promise<CommonResponseDto<void>> {
+    await this.postsService.createPost(user, createPostDto);
+    return CommonResponseDto.successNoContent(ResponseMessage.CREATE_SUCCESS);
+  }
 
   @Get()
   async getPosts(@Query() query: PaginatePostDto) {
