@@ -8,6 +8,7 @@ import { AuthService } from '../auth.service';
 import { Reflector } from '@nestjs/core';
 import { UserService } from '../../user/user.service';
 import { IsPublicEnum } from '../../common/decorator/is-public.const';
+import { ISPUBLIC_KEY } from '../../common/decorator/is-public.decorator';
 
 @Injectable()
 export class TokenGuard implements CanActivate {
@@ -18,10 +19,10 @@ export class TokenGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredPublic = this.reflector.getAllAndOverride(
-      IsPublicEnum.ISPUBLIC,
-      [context.getHandler(), context.getClass()],
-    );
+    const requiredPublic = this.reflector.getAllAndOverride(ISPUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
     const req = context.switchToHttp().getRequest();
 
@@ -38,6 +39,7 @@ export class TokenGuard implements CanActivate {
     if (!rawToken) {
       throw new UnauthorizedException();
     }
+
     const token = this.authService.extractTokenFromHeader(rawToken);
 
     const result = await this.authService.verifyToken(token);
