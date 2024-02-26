@@ -87,4 +87,9 @@ export class AuthService {
 
     return new TokenDto(newAccessToken, newRefreshToken);
   }
+
+  async deleteRefreshToken(user: User): Promise<void> {
+    const { email } = user;
+    this.cacheManager.del(email);
+  }
 }

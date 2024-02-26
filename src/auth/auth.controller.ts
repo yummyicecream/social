@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { IsPublic } from '../common/decorator/is-public.decorator';
@@ -36,5 +43,13 @@ export class AuthController {
   ): Promise<CommonResponseDto<TokenDto>> {
     const result = await this.authService.reissueAccessToken(user, token);
     return CommonResponseDto.success(ResponseMessage.CREATE_SUCCESS, result);
+  }
+
+  //레디스에 저장된 리프뤠시토큰 삭제
+  @HttpCode(HttpStatus.OK)
+  @Post('/logout')
+  async userLogout(@GetUser() user: User): Promise<CommonResponseDto<void>> {
+    await this.authService.deleteRefreshToken(user);
+    return CommonResponseDto.successNoContent(ResponseMessage.DELETE_SUCCESS);
   }
 }
