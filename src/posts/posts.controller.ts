@@ -22,7 +22,6 @@ export class PostsController {
 
   @Get()
   async getPosts(@Query() query: PaginatePostDto) {
-    console.log('aaaaaaaaaaaaaa');
     return this.postsService.paginatePosts(query);
   }
 

@@ -34,7 +34,6 @@ import * as redisStore from 'cache-manager-ioredis';
   controllers: [AppController],
   providers: [
     AppService,
-
     {
       provide: APP_GUARD,
       useClass: AccessTokenGuard,
