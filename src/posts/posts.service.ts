@@ -8,24 +8,47 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { Post } from '../entity/post.entity';
 import { v4 as uuid } from 'uuid';
 import { AwsService } from '../aws/aws.service';
+import { Image } from '../entity/image.entity';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
+    @InjectRepository(Image)
+    private readonly imageRepository: Repository<Image>,
     private readonly awsService: AwsService,
   ) {}
 
-  async createPost(user: User, dto: CreatePostDto): Promise<void> {
-    const { title, content } = dto;
+  async createPost(
+    user: User,
+    dto: CreatePostDto,
+    file: Express.Multer.File,
+  ): Promise<void> {
+    let imgUrl: string;
+    try {
+      const { title, content } = dto;
 
-    const post = this.postRepository.create({
-      title,
-      content,
-      author: user,
-    });
-    await this.postRepository.save(post);
+      //aws 저장하고 imgurl 반환
+      const imgUrl = await this.saveImage(file);
+      //이미지 객체 생성
+      const image = this.imageRepository.create({
+        url: imgUrl,
+      });
+      //포스트 객체 생성 (이미지 객체 및 정보 주입)
+      const post = this.postRepository.create({
+        title,
+        content,
+        author: user,
+        images: [image],
+      });
+      //포스트객체 저장
+      await this.postRepository.save(post);
+    } catch (error) {
+      //에러 터지면 aws 삭제
+      await this.deleteImageByCancel(imgUrl);
+    }
   }
+
   async modifyPost(
     user: User,
     postId: number,
@@ -95,6 +118,12 @@ export class PostsService {
       file,
       ext,
     );
-    return { imageUrl };
+
+    return imageUrl;
+  }
+
+  async deleteImageByCancel(imgUrl: string) {
+    const fileName = imgUrl.match(/\/([^\/?#]+)[^\/]*$/)[1];
+    await this.awsService.deleteImageFromS3(fileName);
   }
 }

@@ -10,7 +10,7 @@ import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { IsPublic } from '../common/decorator/is-public.decorator';
 import { RefreshTokenGuard } from './guard/token-auth.guard';
-import { GetToken, GetUser } from '../common/decorator/get-user.decorator';
+import { GetToken, GetUser } from '../common/decorator/get-param.decorator';
 import { User } from '../entity/user.entity';
 import { IsPublicEnum } from '../common/decorator/is-public.const';
 import { CommonResponseDto } from '../common/dto/common-response.dto';

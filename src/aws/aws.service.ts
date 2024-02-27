@@ -1,6 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 
 @Injectable()
 export class AwsService {
@@ -32,5 +36,17 @@ export class AwsService {
     await this.s3Client.send(command);
 
     return `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.AWS_S3_BUCKET_NAME}/${fileName}`;
+  }
+  async deleteImageFromS3(fileName: string) {
+    const command = new DeleteObjectCommand({
+      Bucket: this.configService.get('AWS_S3_BUCKET_NAME'),
+      Key: fileName,
+    });
+
+    try {
+      await this.s3Client.send(command);
+    } catch (error) {
+      throw new NotFoundException('IMAGE_NOT_FOUND');
+    }
   }
 }

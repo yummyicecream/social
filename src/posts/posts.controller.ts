@@ -15,7 +15,7 @@ import { PaginatePostDto } from './dto/paginate-post.dto';
 import { CommonResponseDto } from '../common/dto/common-response.dto';
 import { ResponseMessage } from '../common/dto/response-message.enum';
 import { PostResponseDto } from './dto/post-response.dto';
-import { GetUser } from '../common/decorator/get-user.decorator';
+import { GetUser } from '../common/decorator/get-param.decorator';
 import { User } from '../entity/user.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { IsPublic } from '../common/decorator/is-public.decorator';
@@ -34,11 +34,17 @@ export class PostsController {
   }
 
   @Post()
+  @UseInterceptors(OptionalFile)
   async createPost(
     @GetUser() user: User,
     @Body() dto: CreatePostDto,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<CommonResponseDto<void>> {
-    await this.postsService.createPost(user, dto);
+    //aws에 올리는거
+    //이미지객체 생성
+    //포스트repository 이미지객체 넣고 저장
+    //try
+    await this.postsService.createPost(user, dto, file);
     return CommonResponseDto.successNoContent(ResponseMessage.CREATE_SUCCESS);
   }
   @Post(':postId')
