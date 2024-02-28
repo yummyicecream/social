@@ -34,7 +34,7 @@ export class PostsController {
   }
 
   @Post()
-  @UseInterceptors(OptionalFile)
+  @UseInterceptors(FileInterceptor('file'))
   async createPost(
     @GetUser() user: User,
     @Body() dto: CreatePostDto,
@@ -69,6 +69,8 @@ export class PostsController {
   @Get()
   @IsPublic(IsPublicEnum.ISPUBLIC)
   async getPosts(@Query() query: PaginatePostDto) {
+    console.log('aaa');
+    console.log(query);
     return this.postsService.paginatePosts(query);
   }
 

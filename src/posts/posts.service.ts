@@ -24,13 +24,12 @@ export class PostsService {
     dto: CreatePostDto,
     file: Express.Multer.File,
   ): Promise<void> {
-    let imgUrl: string;
-    try {
-      const { title, content } = dto;
+    const { title, content } = dto;
 
-      //aws 저장하고 imgurl 반환
-      const imgUrl = await this.saveImage(file);
-      //이미지 객체 생성
+    //aws 저장하고 imgurl 반환
+    const imgUrl = await this.saveImage(file);
+    //이미지 객체 생성
+    try {
       const image = this.imageRepository.create({
         url: imgUrl,
       });
@@ -45,7 +44,7 @@ export class PostsService {
       await this.postRepository.save(post);
     } catch (error) {
       //에러 터지면 aws 삭제
-      await this.deleteImageByCancel(imgUrl);
+      await this.deleteImage(imgUrl);
     }
   }
 
@@ -102,17 +101,22 @@ export class PostsService {
         id: postId,
         author: { id: user.id },
       },
+      relations: {
+        images: true,
+      },
     });
+
     if (!post) {
-      throw new NotFoundException();
+      throw new NotFoundException('NO_MATCHING_POST');
     }
+    const imgUrl = post.images[0].url;
+    this.deleteImage(imgUrl);
     await this.postRepository.remove(post);
   }
 
   async saveImage(file: Express.Multer.File) {
     const imageName = uuid();
     const ext = file.originalname.split('.').pop();
-
     const imageUrl = await this.awsService.imageUploadToS3(
       `${imageName}.${ext}`,
       file,
@@ -122,7 +126,7 @@ export class PostsService {
     return imageUrl;
   }
 
-  async deleteImageByCancel(imgUrl: string) {
+  async deleteImage(imgUrl: string) {
     const fileName = imgUrl.match(/\/([^\/?#]+)[^\/]*$/)[1];
     await this.awsService.deleteImageFromS3(fileName);
   }

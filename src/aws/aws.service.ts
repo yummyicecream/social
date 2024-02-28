@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   DeleteObjectCommand,
@@ -32,8 +36,11 @@ export class AwsService {
       ACL: 'public-read',
       ContentType: `image/${ext}`,
     });
-
-    await this.s3Client.send(command);
+    try {
+      await this.s3Client.send(command);
+    } catch (error) {
+      throw new ServiceUnavailableException('AWS_S3_SERVICE_DOWN');
+    }
 
     return `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.AWS_S3_BUCKET_NAME}/${fileName}`;
   }
