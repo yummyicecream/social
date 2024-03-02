@@ -9,6 +9,7 @@ import { Post } from '../entity/post.entity';
 import { v4 as uuid } from 'uuid';
 import { AwsService } from '../aws/aws.service';
 import { Image } from '../entity/image.entity';
+import { Category } from '../entity/category.entity';
 
 @Injectable()
 export class PostsService {
@@ -16,6 +17,8 @@ export class PostsService {
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
     @InjectRepository(Image)
     private readonly imageRepository: Repository<Image>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
     private readonly awsService: AwsService,
   ) {}
 
@@ -24,7 +27,14 @@ export class PostsService {
     dto: CreatePostDto,
     file: Express.Multer.File,
   ): Promise<void> {
-    const { title, content } = dto;
+    const { title, content, category } = dto;
+
+    const compareCategory = await this.categoryRepository.findOneBy({
+      name: category,
+    });
+    if (!compareCategory) {
+      throw new NotFoundException('CATEGORY_NOT_FOUND');
+    }
 
     //aws 저장하고 imgurl 반환
     const imgUrl = await this.saveImage(file);
@@ -39,6 +49,7 @@ export class PostsService {
         content,
         author: user,
         images: [image],
+        category: compareCategory,
       });
       //포스트객체 저장
       await this.postRepository.save(post);
