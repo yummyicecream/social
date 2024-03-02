@@ -85,3 +85,5 @@ export class PostsController {
     return CommonResponseDto.success(ResponseMessage.READ_SUCCESS, post);
   }
 }
+
+//유저의 게시물 전체조회 (공개 계정이면 ispublic, 비공개 계정이면 followcheck)

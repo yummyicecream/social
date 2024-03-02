@@ -26,4 +26,10 @@ export class UserController {
     await this.userService.deleteUser(user);
     return CommonResponseDto.successNoContent(ResponseMessage.DELETE_SUCCESS);
   }
+
+  @Post('/follow')
+  async followUser() {}
+
+  @Delete('/follow')
+  async unfollowUser() {}
 }

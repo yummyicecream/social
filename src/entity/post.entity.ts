@@ -4,6 +4,7 @@ import { Base } from './base.entity';
 import { User } from './user.entity';
 import { Image } from './image.entity';
 import { Category } from './category.entity';
+import { SecurityLevelEnum } from './enum.ts/security-level.enum';
 
 @Entity()
 export class Post extends Base {
@@ -20,6 +21,13 @@ export class Post extends Base {
   @Column()
   @IsString()
   content: string;
+
+  @Column({
+    type: 'enum',
+    enum: SecurityLevelEnum,
+    default: SecurityLevelEnum.PUBLIC,
+  })
+  securityLevel: SecurityLevelEnum;
 
   @OneToMany(() => Image, (image) => image.post, { cascade: true })
   images: Image[];
