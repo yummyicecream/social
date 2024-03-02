@@ -4,6 +4,7 @@ import { IsEmail, IsString, Length } from 'class-validator';
 import { lengthValidationMessage } from '../common/validation/validation-message';
 import { Post } from './post.entity';
 import { Follow } from './follow.entity';
+import { UserRoleEnum } from './enum/user-role.enum';
 
 @Entity()
 export class User extends Base {
@@ -23,8 +24,11 @@ export class User extends Base {
   @Column()
   password: string;
 
-  @Column()
-  role: string;
+  @Column({
+    type: 'enum',
+    enum: UserRoleEnum,
+  })
+  role: UserRoleEnum;
 
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
