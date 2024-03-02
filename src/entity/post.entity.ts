@@ -4,7 +4,7 @@ import { Base } from './base.entity';
 import { User } from './user.entity';
 import { Image } from './image.entity';
 import { Category } from './category.entity';
-import { SecurityLevelEnum } from './enum.ts/security-level.enum';
+import { SecurityLevelEnum } from './enum/security-level.enum';
 
 @Entity()
 export class Post extends Base {

@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { SecurityLevelEnum } from '../../entity/enum/security-level.enum';
 
 export class CreatePostDto {
   @IsNotEmpty()
@@ -13,4 +14,7 @@ export class CreatePostDto {
 
   @IsNotEmpty()
   readonly category: string;
+
+  @IsEnum(SecurityLevelEnum)
+  readonly securityLevel: SecurityLevelEnum;
 }

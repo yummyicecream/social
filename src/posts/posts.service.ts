@@ -27,7 +27,7 @@ export class PostsService {
     dto: CreatePostDto,
     file: Express.Multer.File,
   ): Promise<void> {
-    const { title, content, category } = dto;
+    const { title, content, category, securityLevel } = dto;
 
     const compareCategory = await this.categoryRepository.findOneBy({
       name: category,
@@ -50,6 +50,7 @@ export class PostsService {
         author: user,
         images: [image],
         category: compareCategory,
+        securityLevel: securityLevel,
       });
       //포스트객체 저장
       await this.postRepository.save(post);
