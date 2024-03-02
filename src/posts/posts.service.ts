@@ -101,7 +101,7 @@ export class PostsService {
       where: { id: postId },
     });
     if (!post) {
-      throw new NotFoundException();
+      throw new NotFoundException('POST_NOT_FOUND');
     }
     return new PostResponseDto(post);
   }
@@ -125,7 +125,7 @@ export class PostsService {
     await this.postRepository.remove(post);
   }
 
-  async saveImage(file: Express.Multer.File) {
+  async saveImage(file: Express.Multer.File): Promise<string> {
     const imageName = uuid();
     const ext = file.originalname.split('.').pop();
     const imageUrl = await this.awsService.imageUploadToS3(

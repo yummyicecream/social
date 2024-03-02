@@ -22,6 +22,7 @@ export class User extends Base {
   @Column()
   password: string;
 
+  @Column()
   role: string;
 
   @OneToMany(() => Post, (post) => post.author)

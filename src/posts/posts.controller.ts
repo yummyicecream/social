@@ -29,8 +29,11 @@ export class PostsController {
   @Post('image')
   @IsPublic(IsPublicEnum.ISPUBLIC)
   @UseInterceptors(FileInterceptor('file'))
-  async saveImage(@UploadedFile() file: Express.Multer.File) {
-    return await this.postsService.saveImage(file);
+  async saveImage(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<CommonResponseDto<string>> {
+    const imgUrl = await this.postsService.saveImage(file);
+    return CommonResponseDto.success(ResponseMessage.CREATE_SUCCESS, imgUrl);
   }
 
   @Post()
@@ -69,7 +72,6 @@ export class PostsController {
   @Get()
   @IsPublic(IsPublicEnum.ISPUBLIC)
   async getPosts(@Query() query: PaginatePostDto) {
-    console.log('aaa');
     console.log(query);
     return this.postsService.paginatePosts(query);
   }
