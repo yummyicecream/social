@@ -3,6 +3,7 @@ import { Base } from './base.entity';
 import { IsEmail, IsString, Length } from 'class-validator';
 import { lengthValidationMessage } from '../common/validation/validation-message';
 import { Post } from './post.entity';
+import { Follow } from './follow.entity';
 
 @Entity()
 export class User extends Base {
@@ -27,4 +28,10 @@ export class User extends Base {
 
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
+
+  @OneToMany(() => Follow, (follow) => follow.followee)
+  followees: Follow[];
+
+  @OneToMany(() => Follow, (follow) => follow.follower)
+  followers: Follow[];
 }

@@ -10,6 +10,7 @@ export class Post extends Base {
   @ManyToOne(() => User, (user) => user.posts, {
     nullable: false,
   })
+  @JoinColumn({ name: 'user_id' })
   author: User;
 
   @Column()
