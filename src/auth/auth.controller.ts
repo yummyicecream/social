@@ -50,6 +50,6 @@ export class AuthController {
   @Post('/logout')
   async userLogout(@GetUser() user: User): Promise<CommonResponseDto<void>> {
     await this.authService.deleteRefreshToken(user);
-    return CommonResponseDto.successNoContent(ResponseMessage.DELETE_SUCCESS);
+    return CommonResponseDto.successNoContent(ResponseMessage.LOGOUT_SUCCESS);
   }
 }
