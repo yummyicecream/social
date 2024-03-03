@@ -34,7 +34,7 @@ export class UserController {
     await this.userService.deleteUser(user);
     return CommonResponseDto.successNoContent(ResponseMessage.DELETE_SUCCESS);
   }
-
+  //follow and pendingrequest 모두가능
   @Post('/follow/:id')
   async followUser(
     @Param('id', ParseIntPipe) followeeId: number,
@@ -44,7 +44,7 @@ export class UserController {
     return CommonResponseDto.successNoContent(responseMessage);
   }
 
-  @Delete('/follow/:id')
+  @Delete('/unfollow/:id')
   async unfollowUser(
     @Param('id', ParseIntPipe) followeeId: number,
     @GetUser() user: User,
@@ -52,9 +52,10 @@ export class UserController {
     await this.userService.unfollowUser(followeeId, user);
     return CommonResponseDto.successNoContent(ResponseMessage.UNFOLLOW_SUCCESS);
   }
+  //cancelPendingFollowByFollower
 
   @Patch('/follow/confirm/:id')
-  async confirmPendingFollow(
+  async confirmPendingFollowByFollowee(
     @Param('id', ParseIntPipe) followerId: number,
     @GetUser() user: User,
   ): Promise<CommonResponseDto<void>> {
@@ -62,8 +63,8 @@ export class UserController {
     return CommonResponseDto.successNoContent(ResponseMessage.FOLLOW_SUCCESS);
   }
 
-  @Delete('/follow/confirm/:id')
-  async rejectPendingFollow(
+  @Delete('/follow/reject/:id')
+  async rejectPendingFollowByFollowee(
     @Param('id', ParseIntPipe) followerId: number,
     @GetUser() user: User,
   ): Promise<CommonResponseDto<void>> {
@@ -72,7 +73,9 @@ export class UserController {
   }
 
   @Patch('privacy')
-  async switchPrivacyStatus(@GetUser() user: User) {
+  async switchPrivacyStatus(
+    @GetUser() user: User,
+  ): Promise<CommonResponseDto<void>> {
     await this.userService.switchPrivacyStatus(user);
     return CommonResponseDto.successNoContent(ResponseMessage.UPDATE_SUCCESS);
   }

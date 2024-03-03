@@ -62,13 +62,11 @@ export class UserService {
     }
 
     if (followee.privacyStatus === PrivacyStatusEnum.PRIVATE) {
-      //여기 로직
       const instance = this.followRepository.create({
         followee,
         follower: user,
         status: FollowStatusEnum.PENDING,
       });
-      console.log('asdfsadfasdfasas');
       await this.followRepository.save(instance);
 
       return ResponseMessage.PENDING_SUCCESS;
@@ -113,11 +111,16 @@ export class UserService {
 
   async unfollowUser(followeeId: number, user: User): Promise<void> {
     const follow = await this.followRepository.findOne({
-      where: { followee: { id: followeeId }, follower: { id: user.id } },
+      where: {
+        followee: { id: followeeId },
+        follower: { id: user.id },
+        status: FollowStatusEnum.CONFIRMED,
+      },
     });
     if (!follow) {
       throw new NotFoundException('FOLLOW_RELATION_NOT_EXISTS');
     }
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -206,7 +209,7 @@ export class UserService {
     this.followRepository.remove(pendingFollow);
   }
 
-  async switchPrivacyStatus(user: User) {
+  async switchPrivacyStatus(user: User): Promise<void> {
     if (user.privacyStatus === PrivacyStatusEnum.PRIVATE) {
       this.userRepository.update(user.id, {
         privacyStatus: PrivacyStatusEnum.PUBLIC,
