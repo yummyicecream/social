@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { Follow } from '../entity/follow.entity';
@@ -16,6 +16,7 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Follow)
     private readonly followRepository: Repository<Follow>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<void> {
@@ -56,14 +57,38 @@ export class UserService {
     if (!followee) {
       throw new NotFoundException('FOLLOWEE_NOT_FOUND');
     }
-    const follow = this.followRepository.create({
-      followee,
-      follower: user,
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      await this.followRepository.save(follow);
+      await this.userRepository.increment(
+        {
+          id: followeeId,
+        },
+        'followerCount',
+        1,
+      );
+      await this.userRepository.increment(
+        {
+          id: user.id,
+        },
+        'followeeCount',
+        1,
+      );
+
+      const follow = this.followRepository.create({
+        followee,
+        follower: user,
+      });
+      await queryRunner.manager
+        .withRepository(this.followRepository)
+        .save(follow);
+      await queryRunner.commitTransaction();
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       throw new BadRequestException('FOLLOW_EXISTS');
+    } finally {
+      await queryRunner.release();
     }
   }
 

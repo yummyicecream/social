@@ -35,6 +35,11 @@ export class User extends Base {
   })
   followerCount: number;
 
+  @Column({
+    default: 0,
+  })
+  followeeCount: number;
+
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
 
