@@ -1,4 +1,11 @@
-import { Body, Controller, Delete, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CommonResponseDto } from '../common/dto/common-response.dto';
 import { ResponseMessage } from '../common/dto/response-message.enum';
@@ -27,8 +34,14 @@ export class UserController {
     return CommonResponseDto.successNoContent(ResponseMessage.DELETE_SUCCESS);
   }
 
-  @Post('/follow')
-  async followUser() {}
+  @Post('/follow/:id')
+  async followUser(
+    @Param('id', ParseIntPipe) followeeId: number,
+    @GetUser() user: User,
+  ): Promise<CommonResponseDto<void>> {
+    await this.userService.followUser(followeeId, user);
+    return CommonResponseDto.successNoContent(ResponseMessage.FOLLOW_SUCCESS);
+  }
 
   @Delete('/follow')
   async unfollowUser() {}

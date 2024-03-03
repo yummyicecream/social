@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -8,10 +9,13 @@ import { User } from '../entity/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { Follow } from '../entity/follow.entity';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(Follow)
+    private readonly followRepository: Repository<Follow>,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<void> {
@@ -40,5 +44,26 @@ export class UserService {
   async findUserByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOneBy({ email: email });
     return user;
+  }
+
+  async followUser(followeeId: number, user: User): Promise<void> {
+    if (followeeId === user.id) {
+      throw new BadRequestException('CANNOT_FOLLOW_YOURSELF');
+    }
+    const followee = await this.userRepository.findOneBy({
+      id: followeeId,
+    });
+    if (!followee) {
+      throw new NotFoundException('FOLLOWEE_NOT_FOUND');
+    }
+    const follow = this.followRepository.create({
+      followee,
+      follower: user,
+    });
+    try {
+      await this.followRepository.save(follow);
+    } catch (error) {
+      throw new BadRequestException('FOLLOW_EXISTS');
+    }
   }
 }
