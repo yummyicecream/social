@@ -43,6 +43,12 @@ export class UserController {
     return CommonResponseDto.successNoContent(ResponseMessage.FOLLOW_SUCCESS);
   }
 
-  @Delete('/follow')
-  async unfollowUser() {}
+  @Delete('/follow/:id')
+  async unfollowUser(
+    @Param('id', ParseIntPipe) followeeId: number,
+    @GetUser() user: User,
+  ): Promise<CommonResponseDto<void>> {
+    await this.userService.unfollowUser(followeeId, user);
+    return CommonResponseDto.successNoContent(ResponseMessage.UNFOLLOW_SUCCESS);
+  }
 }

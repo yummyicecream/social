@@ -30,6 +30,11 @@ export class User extends Base {
   })
   role: UserRoleEnum;
 
+  @Column({
+    default: 0,
+  })
+  followerCount: number;
+
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
 
