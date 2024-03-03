@@ -109,17 +109,15 @@ export class PostsService {
   async getPostById(postId: number, user: User): Promise<PostResponseDto> {
     const post = await this.postRepository.findOne({
       where: { id: postId },
-      relations: ['author'],
+      relations: ['author', 'images'],
     });
+    console.log(post);
     if (!post) {
       throw new NotFoundException('POST_NOT_FOUND');
     }
     if (post.securityLevel === SecurityLevelEnum.PUBLIC) {
       return new PostResponseDto(post);
     } else if (post.securityLevel === SecurityLevelEnum.ONLYFOLLOWERS) {
-      console.log(post);
-      console.log(post.author);
-      console.log(user);
       const follow = await this.followRepository.findOne({
         where: {
           followee: { id: post.author.id },

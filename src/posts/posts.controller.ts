@@ -92,6 +92,7 @@ export class PostsController {
   //시크릿이면 안보여주고
   //온리팔로워즈면 팔로우쉽있으면 보여줌
 
+  //Todo: 비회원 조회 추가해야함
   @Get(':postId')
   async getPostById(
     @Param('postId', ParseIntPipe) postId: number,
