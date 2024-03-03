@@ -146,6 +146,53 @@ export class UserService {
     }
   }
 
+  async confirmFollow(followeeId: number, user: User) {
+    //pending인거 찾고
+    //confirm으로 바꿔주고
+
+    const pendingFollow = await this.followRepository.findOne({
+      where: {
+        followee: { id: followeeId },
+        follower: { id: user.id },
+        status: FollowStatusEnum.PENDING,
+      },
+    });
+    if (!pendingFollow) {
+      throw new NotFoundException('NO_PENDING_FOLLOW');
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await this.userRepository.increment(
+        {
+          id: followeeId,
+        },
+        'followerCount',
+        1,
+      );
+      await this.userRepository.increment(
+        {
+          id: user.id,
+        },
+        'followeeCount',
+        1,
+      );
+      await queryRunner.manager
+        .withRepository(this.followRepository)
+        .update(pendingFollow.id, {
+          status: FollowStatusEnum.CONFIRMED,
+        });
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   //   async followPrivateUser(followeeId: number, user: User) {
   //     const followee = await this.userRepository.findOneBy({
   //       id: followeeId,

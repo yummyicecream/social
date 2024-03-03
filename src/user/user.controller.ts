@@ -63,6 +63,12 @@ export class UserController {
   //   await this.userService.followPrivateUser(followId, user);
   // }
   //펜딩값 변경해주고 팔로잉수 수정해줌
-  @Patch('/follow/private/:id')
-  async confirmFollow() {}
+  @Patch('/follow/:id')
+  async confirmFollow(
+    @Param('id', ParseIntPipe) followeeId: number,
+    @GetUser() user: User,
+  ) {
+    await this.userService.confirmFollow(followeeId, user);
+    return CommonResponseDto.successNoContent(ResponseMessage.FOLLOW_SUCCESS);
+  }
 }
