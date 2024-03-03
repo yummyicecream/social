@@ -15,7 +15,6 @@ import { IsPublic } from '../common/decorator/is-public.decorator';
 import { IsPublicEnum } from '../common/decorator/is-public.const';
 import { GetUser } from '../common/decorator/get-param.decorator';
 import { User } from '../entity/user.entity';
-import { UpdateDateColumn } from 'typeorm';
 
 @Controller('/users')
 export class UserController {
@@ -35,13 +34,12 @@ export class UserController {
     await this.userService.deleteUser(user);
     return CommonResponseDto.successNoContent(ResponseMessage.DELETE_SUCCESS);
   }
-  //private 계정이면 pending, public 계정이면 follow
+
   @Post('/follow/:id')
   async followUser(
     @Param('id', ParseIntPipe) followeeId: number,
     @GetUser() user: User,
   ): Promise<CommonResponseDto<ResponseMessage>> {
-    // 공개계정여부 체크 후 라우팅해줌
     const responseMessage = await this.userService.followUser(followeeId, user);
     return CommonResponseDto.successNoContent(responseMessage);
   }
@@ -54,29 +52,42 @@ export class UserController {
     await this.userService.unfollowUser(followeeId, user);
     return CommonResponseDto.successNoContent(ResponseMessage.UNFOLLOW_SUCCESS);
   }
-  //펜딩날리는거
-  // @Post('/follow/private/:id')
-  // async followPrivateUser(
-  //   @Param('id', ParseIntPipe) followId: number,
-  //   @GetUser() user: User,
-  // ) {
-  //   await this.userService.followPrivateUser(followId, user);
-  // }
-  //펜딩값 변경해주고 팔로잉수 수정해줌
+
   @Patch('/follow/confirm/:id')
   async confirmPendingFollow(
-    @Param('id', ParseIntPipe) followeeId: number,
+    @Param('id', ParseIntPipe) followerId: number,
     @GetUser() user: User,
   ): Promise<CommonResponseDto<void>> {
-    await this.userService.confirmPendingFollow(followeeId, user);
+    await this.userService.confirmPendingFollow(followerId, user);
     return CommonResponseDto.successNoContent(ResponseMessage.FOLLOW_SUCCESS);
   }
 
   @Delete('/follow/confirm/:id')
   async rejectPendingFollow(
-    @Param('id', ParseIntPipe) followeeId: number,
+    @Param('id', ParseIntPipe) followerId: number,
     @GetUser() user: User,
-  ) {
-    await this.userService.rejectPendingFollow(followeeId, user);
+  ): Promise<CommonResponseDto<void>> {
+    await this.userService.rejectPendingFollow(followerId, user);
+    return CommonResponseDto.successNoContent(ResponseMessage.UNFOLLOW_SUCCESS);
+  }
+
+  @Patch('privacy')
+  async switchPrivacyStatus(@GetUser() user: User) {
+    await this.userService.switchPrivacyStatus(user);
+    return CommonResponseDto.successNoContent(ResponseMessage.UPDATE_SUCCESS);
   }
 }
+
+//펜딩날리는거
+// @Post('/follow/private/:id')
+// async followPrivateUser(
+//   @Param('id', ParseIntPipe) followId: number,
+//   @GetUser() user: User,
+// ) {
+//   await this.userService.followPrivateUser(followId, user);
+// }
+//펜딩값 변경해주고 팔로잉수 수정해줌
+
+//펜딩 요청 취소?
+//펜딩이랑 팔로우랑 합쳐놓은 상태
+//follower followee guard?

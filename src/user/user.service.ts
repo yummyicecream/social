@@ -148,11 +148,11 @@ export class UserService {
     }
   }
 
-  async confirmPendingFollow(followeeId: number, user: User): Promise<void> {
+  async confirmPendingFollow(followerId: number, user: User): Promise<void> {
     const pendingFollow = await this.followRepository.findOne({
       where: {
         followee: { id: user.id },
-        follower: { id: followeeId },
+        follower: { id: followerId },
         status: FollowStatusEnum.PENDING,
       },
     });
@@ -166,16 +166,16 @@ export class UserService {
     try {
       await this.userRepository.increment(
         {
-          id: followeeId,
+          id: followerId,
         },
-        'followerCount',
+        'followeeCount',
         1,
       );
       await this.userRepository.increment(
         {
           id: user.id,
         },
-        'followeeCount',
+        'followerCount',
         1,
       );
       await queryRunner.manager
@@ -192,11 +192,11 @@ export class UserService {
     }
   }
 
-  async rejectPendingFollow(followeeId: number, user: User) {
+  async rejectPendingFollow(followerId: number, user: User): Promise<void> {
     const pendingFollow = await this.followRepository.findOne({
       where: {
         followee: { id: user.id },
-        follower: { id: followeeId },
+        follower: { id: followerId },
         status: FollowStatusEnum.PENDING,
       },
     });
@@ -204,6 +204,18 @@ export class UserService {
       throw new NotFoundException('NOT_PENDING_FOLLOW');
     }
     this.followRepository.remove(pendingFollow);
+  }
+
+  async switchPrivacyStatus(user: User) {
+    if (user.privacyStatus === PrivacyStatusEnum.PRIVATE) {
+      this.userRepository.update(user.id, {
+        privacyStatus: PrivacyStatusEnum.PUBLIC,
+      });
+    } else if (user.privacyStatus === PrivacyStatusEnum.PUBLIC) {
+      this.userRepository.update(user.id, {
+        privacyStatus: PrivacyStatusEnum.PRIVATE,
+      });
+    }
   }
 
   //   async followPrivateUser(followeeId: number, user: User) {
