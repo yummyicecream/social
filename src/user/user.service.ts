@@ -10,6 +10,9 @@ import { DataSource, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { Follow } from '../entity/follow.entity';
+import { FollowStatusEnum } from '../entity/enum/follow-status.enum';
+import { PrivacyStatusEnum } from '../entity/enum/privacy-status.enum';
+import { ResponseMessage } from '../common/dto/response-message.enum';
 @Injectable()
 export class UserService {
   constructor(
@@ -46,8 +49,8 @@ export class UserService {
     const user = await this.userRepository.findOneBy({ email: email });
     return user;
   }
-  //트랜젝션 유저 팔로우카운트 추가 후 팔로우 저장 안되면 롤백
-  async followUser(followeeId: number, user: User): Promise<void> {
+
+  async followUser(followeeId: number, user: User): Promise<ResponseMessage> {
     if (followeeId === user.id) {
       throw new BadRequestException('CANNOT_FOLLOW_YOURSELF');
     }
@@ -57,38 +60,52 @@ export class UserService {
     if (!followee) {
       throw new NotFoundException('FOLLOWEE_NOT_FOUND');
     }
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      await this.userRepository.increment(
-        {
-          id: followeeId,
-        },
-        'followerCount',
-        1,
-      );
-      await this.userRepository.increment(
-        {
-          id: user.id,
-        },
-        'followeeCount',
-        1,
-      );
 
-      const follow = this.followRepository.create({
+    if (followee.privacyStatus === PrivacyStatusEnum.PRIVATE) {
+      //여기 로직
+      const instance = this.followRepository.create({
         followee,
         follower: user,
+        status: FollowStatusEnum.PENDING,
       });
-      await queryRunner.manager
-        .withRepository(this.followRepository)
-        .save(follow);
-      await queryRunner.commitTransaction();
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw new BadRequestException('FOLLOW_EXISTS');
-    } finally {
-      await queryRunner.release();
+      await this.followRepository.save(instance);
+
+      return ResponseMessage.PENDING_SUCCESS;
+    } else {
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        await this.userRepository.increment(
+          {
+            id: followeeId,
+          },
+          'followerCount',
+          1,
+        );
+        await this.userRepository.increment(
+          {
+            id: user.id,
+          },
+          'followeeCount',
+          1,
+        );
+
+        const follow = this.followRepository.create({
+          followee,
+          follower: user,
+        });
+        await queryRunner.manager
+          .withRepository(this.followRepository)
+          .save(follow);
+        await queryRunner.commitTransaction();
+        return ResponseMessage.FOLLOW_SUCCESS;
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw new BadRequestException('FOLLOW_EXISTS');
+      } finally {
+        await queryRunner.release();
+      }
     }
   }
 
@@ -128,4 +145,16 @@ export class UserService {
       await queryRunner.release();
     }
   }
+
+  //   async followPrivateUser(followeeId: number, user: User) {
+  //     const followee = await this.userRepository.findOneBy({
+  //       id: followeeId,
+  //     });
+  //     const instance = this.followRepository.create({
+  //       followee,
+  //       follower: user,
+  //       status: FollowStatusEnum.PENDING,
+  //     });
+  //     await this.followRepository.save(instance);
+  //   }
 }

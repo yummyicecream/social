@@ -5,7 +5,7 @@ import { lengthValidationMessage } from '../common/validation/validation-message
 import { Post } from './post.entity';
 import { Follow } from './follow.entity';
 import { UserRoleEnum } from './enum/user-role.enum';
-import { PrivacyStatusEnum } from './enum/privace-status.enum';
+import { PrivacyStatusEnum } from './enum/privacy-status.enum';
 
 @Entity()
 export class User extends Base {
