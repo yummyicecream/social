@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PaginatePostDto } from './dto/paginate-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
@@ -10,6 +14,9 @@ import { v4 as uuid } from 'uuid';
 import { AwsService } from '../aws/aws.service';
 import { Image } from '../entity/image.entity';
 import { Category } from '../entity/category.entity';
+import { SecurityLevelEnum } from '../entity/enum/security-level.enum';
+import { Follow } from '../entity/follow.entity';
+import { FollowStatusEnum } from '../entity/enum/follow-status.enum';
 
 @Injectable()
 export class PostsService {
@@ -19,6 +26,8 @@ export class PostsService {
     private readonly imageRepository: Repository<Image>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(Follow)
+    private readonly followRepository: Repository<Follow>,
     private readonly awsService: AwsService,
   ) {}
 
@@ -97,14 +106,37 @@ export class PostsService {
     return { data: posts };
   }
 
-  async getPostById(postId: number): Promise<PostResponseDto> {
+  async getPostById(postId: number, user: User): Promise<PostResponseDto> {
     const post = await this.postRepository.findOne({
       where: { id: postId },
+      relations: ['author'],
     });
     if (!post) {
       throw new NotFoundException('POST_NOT_FOUND');
     }
-    return new PostResponseDto(post);
+    if (post.securityLevel === SecurityLevelEnum.PUBLIC) {
+      return new PostResponseDto(post);
+    } else if (post.securityLevel === SecurityLevelEnum.ONLYFOLLOWERS) {
+      console.log(post);
+      console.log(post.author);
+      console.log(user);
+      const follow = await this.followRepository.findOne({
+        where: {
+          followee: { id: post.author.id },
+          follower: { id: user.id },
+          status: FollowStatusEnum.CONFIRMED,
+        },
+      });
+      console.log(follow);
+      if (!follow) {
+        throw new UnauthorizedException('ACCESS_DENIED_FOLLOWERS_ONLY');
+      }
+      if (follow.status === FollowStatusEnum.CONFIRMED) {
+        return new PostResponseDto(post);
+      }
+    } else if (post.securityLevel === SecurityLevelEnum.SECRET) {
+      throw new UnauthorizedException('ACCESS_DENIED_PRIVATE_POST');
+    }
   }
 
   async deletePost(user: User, postId: number): Promise<void> {

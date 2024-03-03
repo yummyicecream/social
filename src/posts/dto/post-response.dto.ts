@@ -1,6 +1,5 @@
 import { SecurityLevelEnum } from '../../entity/enum/security-level.enum';
 import { Post } from '../../entity/post.entity';
-import { User } from '../../entity/user.entity';
 
 export class PostResponseDto {
   private id: number;
@@ -9,7 +8,7 @@ export class PostResponseDto {
 
   private content: string;
 
-  private author: User;
+  private author: string;
 
   private securityLevel: SecurityLevelEnum;
 
@@ -17,7 +16,7 @@ export class PostResponseDto {
     this.id = post.id;
     this.title = post.title;
     this.content = post.content;
-    this.author = post.author;
+    this.author = post.author.nickname;
     this.securityLevel = post.securityLevel;
   }
 }

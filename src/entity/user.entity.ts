@@ -6,6 +6,7 @@ import { Post } from './post.entity';
 import { Follow } from './follow.entity';
 import { UserRoleEnum } from './enum/user-role.enum';
 import { PrivacyStatusEnum } from './enum/privacy-status.enum';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User extends Base {
@@ -23,6 +24,9 @@ export class User extends Base {
   email: string;
 
   @Column()
+  @Exclude({
+    toPlainOnly: true,
+  })
   password: string;
 
   @Column({

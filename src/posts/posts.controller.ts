@@ -76,12 +76,29 @@ export class PostsController {
     return this.postsService.paginatePosts(query);
   }
 
+  // @Get()
+  // async getMainPostList
+
+  // @Get()
+  // async getMyPostList
+
+  // @Get()
+  // async getUserPostList
+
+  //postid랑 유저 값
+  // 작성자 뽑아내고 나랑 팔로우쉽있는지 확인
+  // 게시물뽑아내고 게시물의 시큐리티레벨 확인함
+  //퍼블릭이면 싹다 보여주고
+  //시크릿이면 안보여주고
+  //온리팔로워즈면 팔로우쉽있으면 보여줌
+
   @Get(':postId')
-  @IsPublic(IsPublicEnum.ISPUBLIC)
   async getPostById(
-    @Param('postId', ParseIntPipe) id: number,
+    @Param('postId', ParseIntPipe) postId: number,
+    @GetUser() user: User,
   ): Promise<CommonResponseDto<PostResponseDto>> {
-    const post = await this.postsService.getPostById(id);
+    const post = await this.postsService.getPostById(postId, user);
+    console.log('aaaaaaaaa', user);
     return CommonResponseDto.success(ResponseMessage.READ_SUCCESS, post);
   }
 }
