@@ -63,12 +63,20 @@ export class UserController {
   //   await this.userService.followPrivateUser(followId, user);
   // }
   //펜딩값 변경해주고 팔로잉수 수정해줌
-  @Patch('/follow/:id')
-  async confirmFollow(
+  @Patch('/follow/confirm/:id')
+  async confirmPendingFollow(
+    @Param('id', ParseIntPipe) followeeId: number,
+    @GetUser() user: User,
+  ): Promise<CommonResponseDto<void>> {
+    await this.userService.confirmPendingFollow(followeeId, user);
+    return CommonResponseDto.successNoContent(ResponseMessage.FOLLOW_SUCCESS);
+  }
+
+  @Delete('/follow/confirm/:id')
+  async rejectPendingFollow(
     @Param('id', ParseIntPipe) followeeId: number,
     @GetUser() user: User,
   ) {
-    await this.userService.confirmFollow(followeeId, user);
-    return CommonResponseDto.successNoContent(ResponseMessage.FOLLOW_SUCCESS);
+    await this.userService.rejectPendingFollow(followeeId, user);
   }
 }

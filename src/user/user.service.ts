@@ -68,6 +68,7 @@ export class UserService {
         follower: user,
         status: FollowStatusEnum.PENDING,
       });
+      console.log('asdfsadfasdfasas');
       await this.followRepository.save(instance);
 
       return ResponseMessage.PENDING_SUCCESS;
@@ -101,6 +102,7 @@ export class UserService {
         await queryRunner.commitTransaction();
         return ResponseMessage.FOLLOW_SUCCESS;
       } catch (error) {
+        console.error(error);
         await queryRunner.rollbackTransaction();
         throw new BadRequestException('FOLLOW_EXISTS');
       } finally {
@@ -146,19 +148,16 @@ export class UserService {
     }
   }
 
-  async confirmFollow(followeeId: number, user: User) {
-    //pending인거 찾고
-    //confirm으로 바꿔주고
-
+  async confirmPendingFollow(followeeId: number, user: User): Promise<void> {
     const pendingFollow = await this.followRepository.findOne({
       where: {
-        followee: { id: followeeId },
-        follower: { id: user.id },
+        followee: { id: user.id },
+        follower: { id: followeeId },
         status: FollowStatusEnum.PENDING,
       },
     });
     if (!pendingFollow) {
-      throw new NotFoundException('NO_PENDING_FOLLOW');
+      throw new NotFoundException('NOT_PENDING_FOLLOW');
     }
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -191,6 +190,20 @@ export class UserService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async rejectPendingFollow(followeeId: number, user: User) {
+    const pendingFollow = await this.followRepository.findOne({
+      where: {
+        followee: { id: user.id },
+        follower: { id: followeeId },
+        status: FollowStatusEnum.PENDING,
+      },
+    });
+    if (!pendingFollow) {
+      throw new NotFoundException('NOT_PENDING_FOLLOW');
+    }
+    this.followRepository.remove(pendingFollow);
   }
 
   //   async followPrivateUser(followeeId: number, user: User) {
