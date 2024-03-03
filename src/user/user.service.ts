@@ -92,13 +92,40 @@ export class UserService {
     }
   }
 
-  async unfollowUser(followeeid: number, user: User): Promise<void> {
+  async unfollowUser(followeeId: number, user: User): Promise<void> {
     const follow = await this.followRepository.findOne({
-      where: { followee: { id: followeeid }, follower: { id: user.id } },
+      where: { followee: { id: followeeId }, follower: { id: user.id } },
     });
     if (!follow) {
       throw new NotFoundException('FOLLOW_RELATION_NOT_EXISTS');
     }
-    await this.followRepository.remove(follow);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await this.userRepository.decrement(
+        {
+          id: followeeId,
+        },
+        'followerCount',
+        1,
+      );
+      await this.userRepository.decrement(
+        {
+          id: user.id,
+        },
+        'followeeCount',
+        1,
+      );
+      await queryRunner.manager
+        .withRepository(this.followRepository)
+        .remove(follow);
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
