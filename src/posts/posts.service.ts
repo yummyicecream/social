@@ -102,6 +102,7 @@ export class PostsService {
       },
       order: { createdAt: dto.order__createdAt },
       take: dto.take,
+      relations: ['images'],
     });
     return { data: posts };
   }
@@ -171,5 +172,20 @@ export class PostsService {
   async deleteImage(imgUrl: string) {
     const fileName = imgUrl.match(/\/([^\/?#]+)[^\/]*$/)[1];
     await this.awsService.deleteImageFromS3(fileName);
+  }
+
+  async getMyPostList(dto: PaginatePostDto, user: User) {
+    const posts = await this.postRepository.find({
+      where: {
+        id: MoreThan(dto.where__id_more_than),
+
+        // author: user,
+      },
+      order: { createdAt: dto.order__createdAt },
+      take: dto.take,
+      relations: ['images'],
+    });
+    console.log(posts);
+    return { data: posts };
   }
 }

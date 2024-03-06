@@ -79,8 +79,11 @@ export class PostsController {
   // @Get()
   // async getMainPostList
 
-  // @Get()
-  // async getMyPostList
+  @Get('my')
+  async getMyPostList(@Query() dto: PaginatePostDto, @GetUser() user: User) {
+    const posts = this.postsService.getMyPostList(dto, user);
+    return posts;
+  }
 
   // @Get()
   // async getUserPostList
